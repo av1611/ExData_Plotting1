@@ -2,28 +2,29 @@
 setwd("~/Dropbox/edu/coursera/DATA_SPECIALIZATION/exdata/ExData_Plotting1")
 
 # Loading the data
-data <- read.csv("~/coursera/exdata-002/project1/household_power_consumption.txt",
-                 sep = ";", na.strings = "?")
-# Creating indeces for dates of interest
-datesOfInterest <- data$Date == "1/2/2007" | data$Date == "2/2/2007"
+data <- read.table("~/coursera/exdata-002/project1/household_power_consumption.txt",
+                   sep = ';', header = T, na.strings = '?',
+                   colClasses = c('character', 'character',
+                                  'numeric', 'numeric', 'numeric',
+                                  'numeric', 'numeric', 'numeric', 'numeric'))
+
+data$DateTime <- strptime(paste(data$Date, data$Time), "%d/%m/%Y %H:%M:%S")
+
 # Subsetting the desired chunk of data
-dataOfInterest <- subset(data, datesOfInterest)
-# A little fun with locales
-Sys.setlocale(category = "LC_TIME", locale = "C")
-Sys.setlocale(category = "LC_ALL", locale = "C")
-# Converting data
-dataOfInterest$Date  <- as.Date(x,"%d/%m/%Y")
+data <- subset(data,
+               as.Date(DateTime) >= as.Date("2007-02-01") &
+               as.Date(DateTime) <= as.Date("2007-02-02"))
 
 # Plots drawing section
 # Plot 2
 # Opening the graphical device
 png(filename = "plot2.png", width = 480, height = 480)
+par(mfrow = c(1, 1))
 
-plot(dataOfInterest$Global_active_power,
-     pch=26, xaxt="n",
-     ylab="Global Active Power (kilowatts)", xlab="")
-# Adding a line
-lines(dataOfInterest$Global_active_power)
-# Adding labels to X axe
-axis(1, at = c(0, 1441, 2900), labels = c("Thu", "Fri", "Sat"))
+plot(data$DateTime, data$Global_active_power, pch = NA, xlab = "", ylab = "Global Active Power (kilowatts)")
+
+# Draw the line
+lines(data$DateTime, data$Global_active_power)
+
+# Closing the graphics device
 dev.off()
